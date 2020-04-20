@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Jobs</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- CSS -->
+    <style>
+    </style>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/custom.css">
+    <link href="css/toastr.css" rel="stylesheet" />
+    <!-- JS -->
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.5.0.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/axios@0.19.2/dist/axios.min.js"></script>
+    <script src="js/toastr.js"></script>
+    <script src="js/utility.js"></script>
+    <script src="js/registartionService.js"></script>
+    <script src="js/userService.js"></script>
+    <script src="js/jobsService.js"></script>
+    <script src="js/user.js"></script>
+
+
+</head>
+
+<body>
+
+    <div class="wrapper d-flex align-items-stretch">
+        <nav id="sidebar">
+            <div class="custom-menu">
+                <button type="button" id="sidebarCollapse" class="btn btn-primary">
+                </button>
+            </div>
+            <div class="img bg-wrap text-center py-4" style="background-image: url(img/bg_1.jpg);">
+                <input type="text" id="searchAllJobs" classs="text-center" placeholder=" Search Jobs..">
+                <div class="user-logo">
+                    <img id="userImg" src="" alt="Avatar">
+                    <h3 id="CurrentUserName"></h3>
+                </div>
+            </div>
+            <ul class="list-unstyled components mb-5">
+                <li class="active">
+                    <a href="#"><span class="fa fa-home mr-3"></span> Home </a>
+                </li>
+                <li>
+                    <a href="friends.html"><span class="fa fa-users mr-3 notif"><small
+                                class="d-flex align-items-center justify-content-center">5</small></span> Friends</a>
+                </li>
+                <li>
+                    <a href="#"><span class="fa fa-download mr-3 notif"><small
+                                class="d-flex align-items-center justify-content-center">5</small></span> Blogs</a>
+                </li>
+                <li>
+                    <a href="#"><span class="fa fa-gift mr-3"></span> Tech Companies</a>
+                </li>
+                <li>
+                    <a href="#"><span class="fa fa-trophy mr-3"></span> Jobs</a>
+                </li>
+                <li>
+                    <a href="#"><span class="fa fa-cog mr-3"></span> Events</a>
+                </li>
+                <li>
+                    <a href="#"><span class="fa fa-sign-in mr-3"></span> Register</a>
+                </li>
+                <li>
+                    <a onclick="logOut()" href="#"><span class="fa fa-sign-out mr-3"></span> Sign Out</a>
+                </li>
+            </ul>
+
+        </nav>
+
+        <!-- Page Content  -->
+        <div id="content" class="p-4 p-md-5 pt-5">
+            <h2 class="mb-4"> Jobs </h2>
+            <!--Profile Card 5-->
+            <div class="col-md-4 mt-4">
+                <div class="card profile-card-5">
+
+                    <div class="card-img-block">
+                        <img class="card-img-top" src="https://images.unsplash.com/photo-1517832207067-4db24a2ae47c"
+                            alt="Card image cap">
+                    </div>
+
+                    <div class="card-body pt-0">
+                        <h5 class="card-title">Florence Garza</h5>
+                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of
+                            the card's content.</p>
+                        <a href="#" class="btn btn-primary">Go somewhere</a>
+                    </div>
+
+                </div>
+                <!-- <p class="mt-3 w-100 float-left text-center"><strong>Card with Floting Picture</strong></p> -->
+            </div>
+        </div>
+    </div>
+    <script>
+
+        $(document).ready(() => {
+            wireHandler();
+            getCurrentUser();
+            console.log("DOM loaded");
+        });
+
+        wireHandler = () => {
+            $(".btnLogut").on("click")
+        }
+
+        // Search Jobs (NOT CURRENLY FUNCTIONING)\\
+        searchByJobName = (e) => {
+            e.preventDefault()
+            let searchQuery = {};
+
+            searchQuery.query = $("#searchAllJobs").val().trim().toLowerCase()
+            if (e.keyCode === 13) {
+                jobsService
+                    .findByJobName(searchQuery.query)
+                    .then(onSearchSuccess)
+                    .catch(onSearchErr)
+            }
+
+        }
+
+        onSearchSuccess = (response) => {
+            $("#searchAllJobs").val("")
+            console.log(response)
+        }
+
+        onSearchErr = (errors) => {
+            $("#searchAllJobs").val("")
+            toastr.error(errors)
+        }
+
+        // // get jobs template append clone \\
+        // getTemplate = () => {
+        //     let contentFromTemplate = $("#cloneTemplate").html()
+        //     var jqObj = $(contentFromTemplate).clone()
+        //     return jqObj
+        // }
+
+        // processFriendsArray = (response) => {
+        //     let arrData = response.map(mapSingleJob);
+        //     $(".cloneContainer").append(arrData)
+        //     //filterForImage(arrData)
+        // }
+
+        // mapSingleJob = (job) => {
+        //     var clone = getTemplate()
+        //     clone.find("div").closest(".singleItem").attr("id", id)
+        //     clone.find("small.summary").text(summary)
+        //     clone.find(".name").text(title)
+        //     clone.find(".singleItem").text()
+        //     friend.primaryImage != null ? clone.find("img.profile").attr("src", primaryImage.imageUrl) : clone.find("img.profile").attr("src", "https://source.unsplash.com/TMgQMXoglsM/500x350")
+        //     return clone
+        //     //filterForImage(clone, friend)
+        // }
+
+        // SIDEBAR \\
+        $("#sidebarCollapse").on("click", function () {
+            $("#sidebar").toggleClass("active");
+        });
+
+    </script>
+</body>
+
+</html>
+
+<!-- current user = response.item.name -->

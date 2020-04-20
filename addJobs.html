@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js">
+<!--<![endif]-->
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Add A Job</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link href="css/toastr.css" rel="stylesheet" />
+    <link rel="stylesheet" href="css/custom.css" class="href">
+    <!-- JS -->
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.5.0.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/axios@0.19.2/dist/axios.min.js"></script>
+    <script src="js/toastr.js"></script>
+    <script src="js/utility.js"></script>
+    <script src="js/jobs/jobsService.js"></script>
+    <!-- Temp CSS/Style -->
+    <style>
+    </style>
+</head>
+
+<body>
+
+    <div class="container register my-4" id="signUp-content">
+        <div class="row">
+            <div class="col-md-3 register-left">
+                <img src="https://pngimage.net/wp-content/uploads/2018/06/it-jobs-in-png-1.png" alt="" />
+                <h3>Jobs</h3>
+                <br />
+                <p>Add great jobs, Get great talent!</p>
+                <!-- \\ future login // <input type="submit" name="" value="Login" /><br /> -->
+            </div>
+            <div class="col-md-9 register-right">
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                        <h3 class="register-heading">Add Jobs Below!</h3>
+                        <div class="row register-form" id="addJobsForm">
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="text" class="form-control title" placeholder="Position Title *"
+                                        value="" />
+                                </div>
+
+                                <div class="form-group">
+                                    <input type="text" class="form-control description"
+                                        placeholder="Position Description *" value="" />
+                                </div>
+                                <div class="form-group">
+                                    <input type="text" class="form-control summary" placeholder="Summary of job *"
+                                        value="" />
+                                </div>
+                                <div class="form-group">
+                                    <input type="text" class="form-control headline" placeholder="Job headline *"
+                                        value="" />
+                                </div>
+                                <div class="form-group">
+                                    <input type="text" class="form-control pay" placeholder="Rate of pay *" value="" />
+                                </div>
+
+                            </div>
+
+                            <div class="col-md-6">
+
+                                <div class="form-group">
+                                    <input type="text" class="form-control slug" placeholder="A Slug *" value="" />
+                                </div>
+
+                                <div class="form-group">
+                                    <input type="text" class="form-control skills" placeholder="Skills *" value="" />
+                                </div>
+
+                                <div class="form-group col-auto">
+                                    <select class="form-control" name="techCompany" id="techCompany-dropDown">
+                                        <option selected disabled hidden class="dropdown-item">Chooose A Company
+                                        </option>
+                                        <option value="" class="dropdown-item"></option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group col-auto">
+                                    <select class="form-control" name="statusId" id="statusId">
+                                        <option selected disabled hidden class="dropdown-item">Chooose A Job Status
+                                        </option>
+                                        <option value="Active" class="dropdown-item">Active</option>
+                                        <option value="Flagged" class="dropdown-item">Flagged </option>
+                                        <option value="NotSet" class="dropdown-item">NotSet</option>
+                                        <option value="Deleted" class="dropdown-item">Deleted</option>
+                                    </select>
+                                </div>
+
+                            </div>
+                            <!-- <input type="hidden" name="tenantId" value="U011KP0HBME"> -->
+                            <input type="submit" id="btnSubmitJob" class="btnRegister" value="Sumbit Job Posting" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer id="sticky-footer" class="py-4 bg-dark text-white-50">
+        <div class="container text-center">
+            <small>Copyright &copy; Your Website</small>
+        </div>
+    </footer>
+
+    <script>
+
+
+        $(document).ready(function () {
+            wireHandler();
+            getTechCompanies();
+        });
+
+        wireHandler = () => {
+            $(".btnRegister").on("click", getFormData)
+        }
+
+        getFormData = (e, techCompanies) => {
+            e.preventDefault()
+            let registration = {};
+
+            registration.title = $(".title").val();
+            registration.description = $(".description").val();
+            registration.summary = $(".summary").val();
+            registration.pay = $(".pay").val();
+            registration.slug = $(".slug").val();
+            registration.statusId = $("select[name=statusId]").val();
+            registration.techCommpanyId = $("select[name=techCompany]").val();
+            registration.skills = [
+                $(".skills").val()
+            ]
+
+            writeFormData(registration)
+
+
+            //writeFormData(registration);
+        };
+
+        writeFormData = (payload) => {
+
+            jobsService
+                .addJobs(payload)
+                .then(onWriteSuccess)
+                .catch(onWriteErr)
+
+        }
+
+        onWriteSuccess = (response) => {
+            toastr.success("Yay, You just posted a new job!!!")
+            //getFormData()
+        }
+
+        onWriteErr = (error) => {
+            toastr.error(`Sorry!! \n${error}`)
+        }
+
+        // populate drowpdown menue of current companies \\
+        getTechCompanies = () => {
+            jobsService
+                .getCompanies(0, 20)
+                .then(onGetAllSuccess)
+        }
+
+        onGetAllSuccess = (response) => {
+            toastr.success("Congrats, Your API call was a success. Jobs dropdown populated!")
+            let company = response.item.pagedItems;
+            let dropdown = $("#techCompany-dropDown");
+
+            dropdown.empty();
+            dropdown.append('<option selected="true" disabled>Choose Company</option>');
+
+            for (let index = 0; index < company.length; index++) {
+                const co = company[index];
+                dropdown.append($('<option></option>').attr('value', co.id).text(co.profile));
+            }
+            // console.log(company)
+        }
+
+
+
+    </script>
+
+</body>
+
+</html>

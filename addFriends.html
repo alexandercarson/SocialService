@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js">
+<!--<![endif]-->
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Add A Freind</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link href="css/toastr.css" rel="stylesheet" />
+    <link rel="stylesheet" href="css/custom.css">
+    <!-- JS -->
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.5.0.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/axios@0.19.2/dist/axios.min.js"></script>
+    <script src="js/toastr.js"></script>
+
+    <script src="js/utility.js"></script>
+    <script src="js/users/userService.js"></script>
+    <script src="js/friends/friendsService.js"></script>
+
+    <!-- Temp CSS/Style -->
+    <style>
+    </style>
+</head>
+
+<body>
+
+    <div class="container register my-4" id="signUp-content">
+        <div class="row">
+            <div class="col-md-3 register-left">
+                <img src="img/friends.png" alt="" />
+                <h3>Add A Friend</h3>
+                <p>They're waiting for you!</p>
+                <!-- \\ future login // <input type="submit" name="" value="Login" /><br /> -->
+            </div>
+            <div class="col-md-9 register-right">
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                        <h3 class="register-heading">Add Your Friends!</h3>
+                        <div class="row register-form" id="friend-form">
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="text" class="form-control title"
+                                        placeholder="Title *    ie. Dr., Ms. Mr." value="" />
+                                </div>
+                                <div class="form-group">
+                                    <input type="text" class="form-control bio" placeholder="Bio *" value="" />
+                                </div>
+                                <div class="form-group">
+                                    <input type="text" class="form-control summary" placeholder="Summary *" value="" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="text" class="form-control headline" placeholder="Headline *"
+                                        value="" />
+                                </div>
+                                <div class="form-group">
+                                    <input type="url" class="form-control slug"
+                                        placeholder="Slug *  ie. a unique string to create a unique url" value="" />
+                                </div>
+                                <div class="form-group">
+                                    <input type="text" name="primaryImage" class="form-control text-center friendImage"
+                                        placeholder="Friends Image Url *" value="" />
+                                </div>
+                            </div>
+                            <div class="form-group col-12">
+                                <select class="form-control" name="statusId" id="setStatusId">
+                                    <option value="Active" selected class="dropdown-item">Active</option>
+                                    <option value="Flagged" class="dropdown-item">Flagged </option>
+                                    <option value="NotSet" class="dropdown-item">NotSet</option>
+                                    <option value="Deleted" class="dropdown-item">Deleted</option>
+                                </select>
+                            </div>
+                            <input type="hidden" id="friendId" name="friendId" value="">
+                            <input type="submit" class="btnRegister" value="Add A Friend" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer id="sticky-footer" class="py-4 bg-dark text-white-50">
+        <div class="container text-center">
+            <small>Copyright &copy; Your Website</small>
+        </div>
+    </footer>
+
+    <script>
+        // isEdit = control flow for add vs. edit \\
+        isEdit = null;
+
+        $(document).ready(function () {
+            wireHandler()
+            getURLForEdit()
+        });
+
+        wireHandler = () => {
+            $(".btnRegister").on("click", getFormData);
+        }
+
+        // Add Friends \\
+        getFormData = () => {
+            //e.preventDefault()
+            let friend = {};
+
+            friend.title = $(".title").val();
+            friend.bio = $(".bio").val();
+            friend.summary = $(".summary").val();
+            friend.headline = $(".headline").val();
+            friend.slug = $(".slug").val();
+            friend.statusId = $("#setStatusId").val();
+            friend.primaryImage = $(".friendImage").val();
+            friend.id = $("#friendId").val();
+
+            if (isEdit) {
+                writeFriendUpdate(friend)
+            } else {
+                writeFormData(friend)
+            }
+        };
+
+        writeFormData = (payload) => {
+            friendsService
+                .addFriends(payload)
+                .then(onAddSuccess)
+                .then(toastr.success(
+                    "Yay, You just added a new friend!!!"
+                ))
+                .catch(onWriteErr)
+        }
+
+        onAddSuccess = (response) => {
+            location.replace("friends.html")
+        }
+
+        onWriteErr = (error) => {
+            toastr.error(`Sorry!! \n${error}`)
+        }
+
+        // Edit Friends \\
+        getURLForEdit = () => {
+            let id = window.location.href.slice(39, 46)
+            //alert(`The URL of this page is: ${id}`)
+
+
+            friendsService
+                .editFriend(id)
+                .then(writeToForm)
+        }
+
+        writeToForm = (response) => {
+            isEdit = true;
+            $(".btnRegister").val("Edit")
+            //let res = r
+            let friends = response.item;
+            let id = friends.id;
+
+            $(".title").val(friends.title)
+            $(".bio").val(friends.bio)
+            $(".summary").val(friends.summary)
+            $(".headline").val(friends.headline)
+            $(".slug").val(friends.slug)
+            $(".setStatusId").val(friends.statusId)
+            $(".friendImage").val(friends.primaryImage.imageUrl)
+            $("#friendId").val(id)
+        }
+
+        writeFriendUpdate = (response) => {
+
+            friendsService
+                .updateFriend(response)
+                .then(onUpdateSuccess)
+                .catch(onUpdateErr)
+        }
+
+        onUpdateErr = (error) => console.warn(`${error}!`)
+
+        onUpdateSuccess = () => {
+            toastr.success("Friend was updated!")
+            location.replace("friends.html")
+        }
+
+    </script>
+
+</body>
+
+</html>
