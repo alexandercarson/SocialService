@@ -216,6 +216,8 @@
 
             jobsService
                 .removeJob(jobId, response)
+                .then(toastr.success("Job Removed!"))
+                .catch(toastr.error(response))
 
         }
 
