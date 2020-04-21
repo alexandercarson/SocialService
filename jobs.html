@@ -16,6 +16,9 @@
     <link rel="stylesheet" href="css/vex-theme-wireframe.css" />
     <!-- JS -->
     <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.5.0.js" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
         integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
         crossorigin="anonymous"></script>
@@ -90,6 +93,31 @@
         </div>
 
 
+        <div class="modal" id="jobsModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <h5 class="modal-title">Modal title</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <div class="modal-body">
+                        <p>Modal body text goes here.</p>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary">Contact Employer</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
     </div>
 
     <script>
@@ -105,6 +133,7 @@
             $(".btnLogut").on("click")
             $(".cloneContainer").on("click", ".deleteThis", deleteJob)
             $(".cloneContainer").on("click", ".editThis", editJob)
+            $(".cloneContainer").on("click", ".showJob", showJobDetails)
         }
 
         // Search Jobs (NOT CURRENLY FUNCTIONING)\\
@@ -133,7 +162,6 @@
         }
 
         // get jobs/template/append clone \\
-
         getJobs = () => {
             jobsService
                 .getJobs(0, 10)
@@ -178,7 +206,6 @@
         }
 
         // Remove / Edit Jobs \\
-
         onDeleteSuccess = (jobId) => {
             toastr.success(`Job with ID:${jobId}, was just deleted`)
             $(e.currentTarget).closest(".card.profile-card-5").remove()
@@ -231,6 +258,21 @@
             location.replace(`addJobs.html?=${job.id}`)
         };
 
+        // Show Job Detail Page\\
+
+
+        showJobDetails = (e) => {
+            e.preventDefault();
+            var selectedJob = $(e.currentTarget).closest(".profile-card-5")
+            var thisJob = selectedJob[0].id
+
+            jobsService
+                .getJobById(thisJob)
+                .then($("#jobsModal").modal())
+                .catch("error")
+
+        }
+
         // SIDEBAR \\
         $("#sidebarCollapse").on("click", function () {
             $("#sidebar").toggleClass("active");
@@ -250,7 +292,7 @@
                 <h5 class="card-title">Florence Garza</h5>
                 <p class="card-text">Some quick example text to build on the card title and make up the bulk of
                     the card's content.</p>
-                <a href="#" class="btn btn-primary">View Job Details</a>
+                <button class="btn btn-primary showJob">View Job Details</button>
             </div>
             <button class="btn btn-sm btn-info p-2 editThis">Edit</button>
             <button type="submit" class="btn btn-sm btn-danger p-2 float-right deleteThis">Delete</button>
