@@ -513,7 +513,9 @@ h1.end {
 /*Profile Card 5*/
 .profile-card-5 {
   margin-top: 30px;
+  margin-bottom: 35px;
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
+  block-size: auto;
 }
 .profile-card-5 .btn {
   border-radius: 2px;
@@ -547,4 +549,12 @@ h1.end {
 .profile-card-5 .card-title {
   text-decoration: underline;
   text-align: center;
+}
+
+/* Jobs Row */
+
+#jobs-row {
+  margin-right: 80px;
+  margin-left: 80px;
+  block-size: auto;
 }

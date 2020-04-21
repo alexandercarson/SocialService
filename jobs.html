@@ -12,18 +12,22 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/custom.css">
     <link href="css/toastr.css" rel="stylesheet" />
+    <link rel="stylesheet" href="css/vex.css" />
+    <link rel="stylesheet" href="css/vex-theme-wireframe.css" />
     <!-- JS -->
     <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.5.0.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
         integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
         crossorigin="anonymous"></script>
     <script src="https://unpkg.com/axios@0.19.2/dist/axios.min.js"></script>
+    <script src="js/vex.combined.min.js"></script>
+    <script>vex.defaultOptions.className = 'vex-theme-wireframe'</script>
     <script src="js/toastr.js"></script>
     <script src="js/utility.js"></script>
-    <script src="js/registartionService.js"></script>
-    <script src="js/userService.js"></script>
-    <script src="js/jobsService.js"></script>
-    <script src="js/user.js"></script>
+    <script src="js/users/registartionService.js"></script>
+    <script src="js/users/userService.js"></script>
+    <script src="js/jobs/jobsService.js"></script>
+    <script src="js/users/user.js"></script>
 
 
 </head>
@@ -75,39 +79,32 @@
         </nav>
 
         <!-- Page Content  -->
-        <div id="content" class="p-4 p-md-5 pt-5">
+        <!-- <div id="content" class="p-4 p-md-5 pt-5">
             <h2 class="mb-4"> Jobs </h2>
-            <!--Profile Card 5-->
-            <div class="col-md-4 mt-4">
-                <div class="card profile-card-5">
+        </div> -->
 
-                    <div class="card-img-block">
-                        <img class="card-img-top" src="https://images.unsplash.com/photo-1517832207067-4db24a2ae47c"
-                            alt="Card image cap">
-                    </div>
-
-                    <div class="card-body pt-0">
-                        <h5 class="card-title">Florence Garza</h5>
-                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of
-                            the card's content.</p>
-                        <a href="#" class="btn btn-primary">Go somewhere</a>
-                    </div>
-
-                </div>
-                <!-- <p class="mt-3 w-100 float-left text-center"><strong>Card with Floting Picture</strong></p> -->
+        <div id="content" class="p-4 p-md-5 pt-5">
+            <div class="row mb-3 cloneContainer" id="jobs-row">
+                <!-- Jobs -->
             </div>
         </div>
+
+
     </div>
+
     <script>
 
         $(document).ready(() => {
             wireHandler();
+            getJobs();
             getCurrentUser();
             console.log("DOM loaded");
         });
 
         wireHandler = () => {
             $(".btnLogut").on("click")
+            $(".cloneContainer").on("click", ".deleteThis", deleteJob)
+            $(".cloneContainer").on("click", ".editThis", editJob)
         }
 
         // Search Jobs (NOT CURRENLY FUNCTIONING)\\
@@ -135,29 +132,102 @@
             toastr.error(errors)
         }
 
-        // // get jobs template append clone \\
-        // getTemplate = () => {
-        //     let contentFromTemplate = $("#cloneTemplate").html()
-        //     var jqObj = $(contentFromTemplate).clone()
-        //     return jqObj
-        // }
+        // get jobs/template/append clone \\
 
-        // processFriendsArray = (response) => {
-        //     let arrData = response.map(mapSingleJob);
-        //     $(".cloneContainer").append(arrData)
-        //     //filterForImage(arrData)
-        // }
+        getJobs = () => {
+            jobsService
+                .getJobs(0, 10)
+                .then(processJobsArray)
+                .catch(onErr)
+        }
 
-        // mapSingleJob = (job) => {
-        //     var clone = getTemplate()
-        //     clone.find("div").closest(".singleItem").attr("id", id)
-        //     clone.find("small.summary").text(summary)
-        //     clone.find(".name").text(title)
-        //     clone.find(".singleItem").text()
-        //     friend.primaryImage != null ? clone.find("img.profile").attr("src", primaryImage.imageUrl) : clone.find("img.profile").attr("src", "https://source.unsplash.com/TMgQMXoglsM/500x350")
-        //     return clone
-        //     //filterForImage(clone, friend)
-        // }
+        onErr = (error) => {
+            console.warn(error)
+        }
+
+        getTemplate = () => {
+            let contentFromTemplate = $("#cloneTemplate").html()
+            var jqObj = $(contentFromTemplate).clone()
+            return jqObj
+        }
+
+        processJobsArray = (response) => {
+            let arrData = response.item.pagedItems.map(mapSingleJob);
+            $(".cloneContainer").append(arrData)
+            //console.log(response)
+        }
+
+        mapSingleJob = (job) => {
+            let mainImage = job;
+            var clone = getTemplate()
+            let images = mainImage.techCompany.images;
+            const map1 = images.map(getNewImage)
+            //console.log(newImage)
+
+            clone.find("h5.card-title").text(job.techCompany.profile)
+            clone.find(".card-text").text(job.techCompany.name)
+            clone.find("div").closest("#singleItemId").attr("id", job.id)
+            clone.find("img.card-img-top").attr("src", companyMainImage)
+
+            return clone
+        }
+
+        getNewImage = (oldImages) => {
+            companyMainImage = oldImages.imageUrl
+            return companyMainImage
+        }
+
+        // Remove / Edit Jobs \\
+
+        onDeleteSuccess = (jobId) => {
+            toastr.success(`Job with ID:${jobId}, was just deleted`)
+            $(e.currentTarget).closest(".card.profile-card-5").remove()
+        }
+
+        deleteJob = (e) => {
+            e.preventDefault();
+
+            var selectedJob = $(e.currentTarget).closest(".profile-card-5")
+            var thisJob = selectedJob[0].id
+
+            vex.dialog.confirm({
+                message: 'Are you absolutely sure you want to destroy the alien planet?',
+                callback: function (ok) {
+                    if (ok) {
+                        jobsService
+                            .getJobById(thisJob)
+                            .then(writeStatus)
+                        console.log(thisJob)
+                    } else {
+                        alert('Chicken.')
+                    }
+                }
+            })
+
+            console.log(thisJob)
+            $(e.currentTarget).closest(".card.profile-card-5").remove();
+        }
+
+        writeStatus = (response) => {
+            let job = response.item;
+            let jobId = job.id;
+
+            job.statusId = "Deleted"
+
+            jobsService
+                .removeJob(jobId, response)
+
+        }
+
+        // Edit Job \\
+        editJob = (e) => {
+            e.preventDefault()
+            let job = {};
+            var selectedJob = $(e.currentTarget).closest(".profile-card-5")
+            job.id = selectedJob.attr("id")
+
+            location.replace(`addJobs.html?=${job.id}`)
+        };
 
         // SIDEBAR \\
         $("#sidebarCollapse").on("click", function () {
@@ -165,6 +235,27 @@
         });
 
     </script>
+
+    <script id="cloneTemplate" type="text/html">
+
+    <div class="card text-center profile-card-5" id="singleItemId">
+        <div class="card-img-block">
+                <img class="card-img-top" src="https://images.unsplash.com/photo-1517832207067-4db24a2ae47c"
+                    alt="Card image cap">
+            </div>
+            
+            <div class="card-body pt-0">
+                <h5 class="card-title">Florence Garza</h5>
+                <p class="card-text">Some quick example text to build on the card title and make up the bulk of
+                    the card's content.</p>
+                <a href="#" class="btn btn-primary">View Job Details</a>
+            </div>
+            <button class="btn btn-sm btn-info p-2 editThis">Edit</button>
+            <button type="submit" class="btn btn-sm btn-danger p-2 float-right deleteThis">Delete</button>
+        </div>
+    </div>
+</script>
+
 </body>
 
 </html>

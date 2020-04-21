@@ -28,6 +28,7 @@
     <script src="https://unpkg.com/axios@0.19.2/dist/axios.min.js"></script>
     <script src="js/toastr.js"></script>
     <script src="js/utility.js"></script>
+
     <script src="js/jobs/jobsService.js"></script>
     <!-- Temp CSS/Style -->
     <style>
@@ -66,10 +67,6 @@
                                         value="" />
                                 </div>
                                 <div class="form-group">
-                                    <input type="text" class="form-control headline" placeholder="Job headline *"
-                                        value="" />
-                                </div>
-                                <div class="form-group">
                                     <input type="text" class="form-control pay" placeholder="Rate of pay *" value="" />
                                 </div>
 
@@ -92,7 +89,6 @@
                                         <option value="" class="dropdown-item"></option>
                                     </select>
                                 </div>
-
                                 <div class="form-group col-auto">
                                     <select class="form-control" name="statusId" id="statusId">
                                         <option selected disabled hidden class="dropdown-item">Chooose A Job Status
@@ -105,7 +101,8 @@
                                 </div>
 
                             </div>
-                            <!-- <input type="hidden" name="tenantId" value="U011KP0HBME"> -->
+                            <input type="hidden" name="techCompanyId" value="">
+                            <input type="hidden" name="jobId" value="">
                             <input type="submit" id="btnSubmitJob" class="btnRegister" value="Sumbit Job Posting" />
                         </div>
                     </div>
@@ -122,11 +119,13 @@
     </footer>
 
     <script>
+        isEdit = null;
 
 
         $(document).ready(function () {
             wireHandler();
             getTechCompanies();
+            getURLForEdit();
         });
 
         wireHandler = () => {
@@ -147,14 +146,19 @@
             registration.skills = [
                 $(".skills").val()
             ]
+            registration.jobId = $("[name=jobId]").val();
 
-            writeFormData(registration)
-
+            if (isEdit) {
+                writeJobUpdate(registration)
+            } else {
+                writeFormData(registration)
+            }
 
             //writeFormData(registration);
         };
 
         writeFormData = (payload) => {
+
 
             jobsService
                 .addJobs(payload)
@@ -172,28 +176,76 @@
             toastr.error(`Sorry!! \n${error}`)
         }
 
-        // populate drowpdown menue of current companies \\
+        // populate drowpdown menu of current companies \\
         getTechCompanies = () => {
             jobsService
                 .getCompanies(0, 20)
-                .then(onGetAllSuccess)
+                .then(onGetAllCompaniesSuccess)
         }
 
-        onGetAllSuccess = (response) => {
+        onGetAllCompaniesSuccess = (response) => {
             toastr.success("Congrats, Your API call was a success. Jobs dropdown populated!")
             let company = response.item.pagedItems;
             let dropdown = $("#techCompany-dropDown");
 
             dropdown.empty();
             dropdown.append('<option selected="true" disabled>Choose Company</option>');
-
             for (let index = 0; index < company.length; index++) {
                 const co = company[index];
-                dropdown.append($('<option></option>').attr('value', co.id).text(co.profile));
+                dropdown.append($('<option></option>').attr('value', co.id).text(co.name));
+                console.log(co)
             }
-            // console.log(company)
         }
 
+        // Edit Jobs \\
+        getURLForEdit = () => {
+            let jobId = window.location.href.slice(36)
+            //alert(`The URL of this page is: ${id}`)
+
+
+            jobsService
+                .getJobById(jobId)
+                .then(writeToForm)
+        }
+
+        writeToForm = (response) => {
+            isEdit = true;
+            $(".btnRegister").val("Edit")
+            //let res = r
+            let job = response.item;
+            let id = job.id;
+
+            $(".title").val(job.title)
+            $(".description").val(job.description)
+            $(".summary").val(job.summary)
+            $(".pay").val(job.pay)
+            $(".slug").val(job.slug)
+            $(".headline").val(job.headline)
+            $("select[name=statusId]").val(job.statusId)
+            $("select[name=techCompany]").val(job.techCompany.id);
+            $("[name=techCompanyId]").val(job.techCompany.id);
+            $("[name=jobId]").val(job.id)
+
+            let skills = job.skills[0].name.split(",")
+            $(".skills").val(skills)
+            console.log(response)
+
+        }
+
+        writeJobUpdate = (response) => {
+
+            jobsService
+                .updateJob(response)
+                .then(onUpdateSuccess)
+                .catch(onUpdateErr)
+        }
+
+        onUpdateErr = (error) => console.warn(`${error}!`)
+
+        onUpdateSuccess = () => {
+            toastr.success("Friend was updated!")
+            // location.replace("friends.html")
+        }
 
 
     </script>

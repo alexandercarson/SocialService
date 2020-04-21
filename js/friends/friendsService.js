@@ -72,6 +72,7 @@ friendsService.editFriend = (id) => {
 
 friendsService.updateFriend = (payload) => {
   let id = payload.id;
+
   const config = {
     method: "PUT",
     url: friendsService.endpoint + friendsService.friendsEp + `/${id}`,

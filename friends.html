@@ -132,7 +132,7 @@
             processFriendsArray = (response) => {
                 let arrData = response.map(mapSingleFriend);
                 $(".cloneContainer").append(arrData)
-                //filterForImage(arrData)
+                console.log(response)
             }
 
             mapSingleFriend = (friend) => {
