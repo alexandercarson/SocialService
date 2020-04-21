@@ -93,29 +93,7 @@
         </div>
 
 
-        <div class="modal" id="jobsModal" tabindex="-1" role="dialog">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
 
-                    <div class="modal-header">
-                        <h5 class="modal-title">Modal title</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-
-                    <div class="modal-body">
-                        <p>Modal body text goes here.</p>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary">Contact Employer</button>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    </div>
-
-                </div>
-            </div>
-        </div>
 
 
     </div>
@@ -129,15 +107,17 @@
             console.log("DOM loaded");
         });
 
-        wireHandler = () => {
+        let wireHandler = () => {
             $(".btnLogut").on("click")
             $(".cloneContainer").on("click", ".deleteThis", deleteJob)
             $(".cloneContainer").on("click", ".editThis", editJob)
             $(".cloneContainer").on("click", ".showJob", showJobDetails)
         }
 
+        isDetail = null;
+
         // Search Jobs (NOT CURRENLY FUNCTIONING)\\
-        searchByJobName = (e) => {
+        let searchByJobName = (e) => {
             e.preventDefault()
             let searchQuery = {};
 
@@ -151,105 +131,140 @@
 
         }
 
-        onSearchSuccess = (response) => {
+        let onSearchSuccess = (response) => {
             $("#searchAllJobs").val("")
             console.log(response)
         }
 
-        onSearchErr = (errors) => {
+        let onSearchErr = (errors) => {
             $("#searchAllJobs").val("")
             toastr.error(errors)
         }
 
         // get jobs/template/append clone \\
-        getJobs = () => {
+        let getJobs = () => {
             jobsService
                 .getJobs(0, 10)
                 .then(processJobsArray)
                 .catch(onErr)
         }
 
-        onErr = (error) => {
+        let onErr = (error) => {
             console.warn(error)
         }
 
-        getTemplate = () => {
+        let getTemplate = () => {
             let contentFromTemplate = $("#cloneTemplate").html()
             var jqObj = $(contentFromTemplate).clone()
             return jqObj
         }
 
-        processJobsArray = (response) => {
+        let processJobsArray = (response) => {
             let arrData = response.item.pagedItems.map(mapSingleJob);
-            $(".cloneContainer").append(arrData)
+
+            if (isDetail) {
+                $(".detailCloneContainer").append(arrData)
+            } else {
+                $(".cloneContainer").append(arrData)
+            }
             //console.log(response)
         }
 
-        mapSingleJob = (job) => {
+        let mapSingleJob = (job) => {
             let mainImage = job;
             var clone = getTemplate()
             let images = mainImage.techCompany.images;
             const map1 = images.map(getNewImage)
             //console.log(newImage)
-
-            clone.find("h5.card-title").text(job.techCompany.profile)
-            clone.find(".card-text").text(job.techCompany.name)
-            clone.find("div").closest("#singleItemId").attr("id", job.id)
-            clone.find("img.card-img-top").attr("src", companyMainImage)
+            if (!isDetail) {
+                clone.find("h5.card-title").text(job.techCompany.profile)
+                clone.find(".card-text").text(job.techCompany.name)
+                clone.find("div").closest("#singleItemId").attr("id", job.id)
+                clone.find("img.card-img-top").attr("src", companyMainImage)
+            } else {
+                clone.find(".modal-title").text(job.techCompany.profile)
+                clone.find(".modal-body").text(job.techCompany.name)
+                //clone.find("div").closest("#singleItemId").attr("id", job.id)
+                //clone.find("img.card-img-top").attr("src", companyMainImage)
+            }
 
             return clone
         }
 
-        getNewImage = (oldImages) => {
+        let getNewImage = (oldImages) => {
             companyMainImage = oldImages.imageUrl
             return companyMainImage
         }
 
-        // Remove / Edit Jobs \\
-        onDeleteSuccess = (jobId) => {
-            toastr.success(`Job with ID:${jobId}, was just deleted`)
-            $(e.currentTarget).closest(".card.profile-card-5").remove()
-        }
 
-        deleteJob = (e) => {
+
+
+
+
+
+
+
+        // Remove / Edit Jobs \\
+
+        let deleteJob = (e) => {
             e.preventDefault();
 
             var selectedJob = $(e.currentTarget).closest(".profile-card-5")
             var thisJob = selectedJob[0].id
-
-            vex.dialog.confirm({
-                message: 'Are you absolutely sure you want to destroy the alien planet?',
-                callback: function (ok) {
-                    if (ok) {
-                        jobsService
-                            .getJobById(thisJob)
-                            .then(writeStatus)
-                        console.log(thisJob)
-                    } else {
-                        alert('Chicken.')
-                    }
-                }
-            })
-
             console.log(thisJob)
-            $(e.currentTarget).closest(".card.profile-card-5").remove();
+            writeStatus(thisJob)
         }
 
-        writeStatus = (response) => {
-            let job = response.item;
-            let jobId = job.id;
+        let writeStatus = (jobId) => {
 
-            job.statusId = "Deleted"
+            payload = {
+                id: jobId,
+                statusId: "Deleted",
+            }
 
             jobsService
-                .removeJob(jobId, response)
-                .then(toastr.success("Job Removed!"))
-                .catch(toastr.error(response))
+                .removeJob(jobId, payload)
+                .then(onDeleteSuccess)
+                .catch(toastr.error("Sorry, something went wrong with your request!"))
 
         }
 
+        let onDeleteSuccess = (jobId) => {
+            toastr.success(`Job with ID:${jobId}, was just deleted`)
+            $(e.currentTarget).closest(".card.profile-card-5").remove()
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         // Edit Job \\
-        editJob = (e) => {
+        let editJob = (e) => {
             e.preventDefault()
             let job = {};
             var selectedJob = $(e.currentTarget).closest(".profile-card-5")
@@ -259,16 +274,14 @@
         };
 
         // Show Job Detail Page\\
-
-
-        showJobDetails = (e) => {
+        let showJobDetails = (e) => {
             e.preventDefault();
             var selectedJob = $(e.currentTarget).closest(".profile-card-5")
             var thisJob = selectedJob[0].id
 
             jobsService
                 .getJobById(thisJob)
-                .then($("#jobsModal").modal())
+                .then(processJobsArray)
                 .catch("error")
 
         }
@@ -298,6 +311,33 @@
             <button type="submit" class="btn btn-sm btn-danger p-2 float-right deleteThis">Delete</button>
         </div>
     </div>
+</script>
+
+    <script id="detailCloneTemplate" type="text/html">
+        <div class="modal" id="jobsModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <h5 class="modal-title">Modal title</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <div class="modal-body">
+                        <p>Modal body text goes here.</p>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary">Contact Employer</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
 </script>
 
 </body>

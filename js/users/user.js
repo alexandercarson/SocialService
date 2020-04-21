@@ -1,4 +1,4 @@
-getCurrentUser = (response) => {
+getCurrentUser = () => {
   userService
     .getCurrentUser()
     .then(updateUserProfilePage)

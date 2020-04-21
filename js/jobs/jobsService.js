@@ -86,8 +86,8 @@ jobsService.removeJob = (id, payload) => {
   const config = {
     method: "PUT",
     url: jobsService.endpoint + jobsService.jobsEp + `/${id}`,
-    data: payload,
     crossdomain: true,
+    data: payload,
     withCredentials: true,
     headers: { "content-type": "application/json" },
   };

@@ -135,7 +135,6 @@
         getFormData = (e, techCompanies) => {
             e.preventDefault()
             let registration = {};
-
             registration.title = $(".title").val();
             registration.description = $(".description").val();
             registration.summary = $(".summary").val();
@@ -145,10 +144,10 @@
             registration.techCommpanyId = $("select[name=techCompany]").val();
             registration.skills = [
                 $(".skills").val()
-            ]
+            ];
             registration.jobId = $("[name=jobId]").val();
 
-            if (isEdit) {
+            if (isEdit === true) {
                 writeJobUpdate(registration)
             } else {
                 writeFormData(registration)
@@ -177,10 +176,14 @@
         }
 
         // populate drowpdown menu of current companies \\
+
         getTechCompanies = () => {
-            jobsService
-                .getCompanies(0, 20)
-                .then(onGetAllCompaniesSuccess)
+
+            if (isEdit === null) {
+                jobsService
+                    .getCompanies(0, 20)
+                    .then(onGetAllCompaniesSuccess)
+            }
         }
 
         onGetAllCompaniesSuccess = (response) => {
@@ -199,37 +202,35 @@
 
         // Edit Jobs \\
         getURLForEdit = () => {
+            isEdit = true;
+
+
             let jobId = window.location.href.slice(36)
             //alert(`The URL of this page is: ${id}`)
-
-
-            jobsService
-                .getJobById(jobId)
-                .then(writeToForm)
+            if (jobId != "") {
+                jobsService
+                    .getJobById(jobId)
+                    .then(writeToForm)
+            }
         }
 
         writeToForm = (response) => {
-            isEdit = true;
-            $(".btnRegister").val("Edit")
-            //let res = r
             let job = response.item;
             let id = job.id;
-
-            $(".title").val(job.title)
-            $(".description").val(job.description)
-            $(".summary").val(job.summary)
-            $(".pay").val(job.pay)
-            $(".slug").val(job.slug)
-            $(".headline").val(job.headline)
-            $("select[name=statusId]").val(job.statusId)
+            let skills = job.skills[0].name.split(",");
+            $("#techCompany-dropDown").prop("disabled", true);
+            $(".title").val(job.title);
+            $(".description").val(job.description);
+            $(".summary").val(job.summary);
+            $(".pay").val(job.pay);
+            $(".slug").val(job.slug);
+            $(".headline").val(job.headline);
+            $("select[name=statusId]").val(job.statusId);
             $("select[name=techCompany]").val(job.techCompany.id);
             $("[name=techCompanyId]").val(job.techCompany.id);
             $("[name=jobId]").val(job.id)
-
-            let skills = job.skills[0].name.split(",")
-            $(".skills").val(skills)
-            console.log(response)
-
+            $(".btnRegister").val("Edit");
+            $(".skills").val(skills);
         }
 
         writeJobUpdate = (response) => {
@@ -243,7 +244,7 @@
         onUpdateErr = (error) => console.warn(`${error}!`)
 
         onUpdateSuccess = () => {
-            toastr.success("Friend was updated!")
+            toastr.success("This Job was updated!")
             // location.replace("friends.html")
         }
 

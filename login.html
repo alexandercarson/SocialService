@@ -27,7 +27,7 @@
     <script src="https://unpkg.com/axios@0.19.2/dist/axios.min.js"></script>
     <script src="js/toastr.js"></script>
     <script src="js/utility.js"></script>
-    <script src="js/user/userService.js"></script>
+    <script src="js/users/userService.js"></script>
     <!-- Temp CSS/Style -->
     <style>
         :root {
@@ -272,7 +272,7 @@
         onSignInSuccess = (response) => {
             toastr.success("Yay, You just Signed-In!!")
             location.replace("index.html")
-            console.log(response)
+            return response;
         }
 
         onSignInErr = (error) => {
