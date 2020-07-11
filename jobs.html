@@ -114,8 +114,6 @@
             $(".cloneContainer").on("click", ".showJob", showJobDetails)
         }
 
-        isDetail = null;
-
         // Search Jobs (NOT CURRENLY FUNCTIONING)\\
         let searchByJobName = (e) => {
             e.preventDefault()
@@ -141,6 +139,7 @@
             toastr.error(errors)
         }
 
+
         // get jobs/template/append clone \\
         let getJobs = () => {
             jobsService
@@ -161,13 +160,8 @@
 
         let processJobsArray = (response) => {
             let arrData = response.item.pagedItems.map(mapSingleJob);
-
-            if (isDetail) {
-                $(".detailCloneContainer").append(arrData)
-            } else {
-                $(".cloneContainer").append(arrData)
-            }
-            //console.log(response)
+            $(".cloneContainer").append(arrData)
+            return arrData
         }
 
         let mapSingleJob = (job) => {
@@ -176,18 +170,10 @@
             let images = mainImage.techCompany.images;
             const map1 = images.map(getNewImage)
             //console.log(newImage)
-            if (!isDetail) {
-                clone.find("h5.card-title").text(job.techCompany.profile)
-                clone.find(".card-text").text(job.techCompany.name)
-                clone.find("div").closest("#singleItemId").attr("id", job.id)
-                clone.find("img.card-img-top").attr("src", companyMainImage)
-            } else {
-                clone.find(".modal-title").text(job.techCompany.profile)
-                clone.find(".modal-body").text(job.techCompany.name)
-                //clone.find("div").closest("#singleItemId").attr("id", job.id)
-                //clone.find("img.card-img-top").attr("src", companyMainImage)
-            }
-
+            clone.find("h5.card-title").text(job.techCompany.profile)
+            clone.find(".card-text").text(job.techCompany.name)
+            clone.find("div").closest("#singleItemId").attr("id", job.id)
+            clone.find("img.card-img-top").attr("src", companyMainImage)
             return clone
         }
 
@@ -210,20 +196,15 @@
             e.preventDefault();
 
             var selectedJob = $(e.currentTarget).closest(".profile-card-5")
-            var thisJob = selectedJob[0].id
-            console.log(thisJob)
-            writeStatus(thisJob)
+            var thisJobId = selectedJob[0].id
+            console.log(thisJobId)
+            writeStatus(thisJobId, selectedJob)
         }
 
         let writeStatus = (jobId) => {
 
-            payload = {
-                id: jobId,
-                statusId: "Deleted",
-            }
-
             jobsService
-                .removeJob(jobId, payload)
+                .removeJob(jobId)
                 .then(onDeleteSuccess)
                 .catch(toastr.error("Sorry, something went wrong with your request!"))
 
@@ -233,30 +214,6 @@
             toastr.success(`Job with ID:${jobId}, was just deleted`)
             $(e.currentTarget).closest(".card.profile-card-5").remove()
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -278,11 +235,6 @@
             e.preventDefault();
             var selectedJob = $(e.currentTarget).closest(".profile-card-5")
             var thisJob = selectedJob[0].id
-
-            jobsService
-                .getJobById(thisJob)
-                .then(processJobsArray)
-                .catch("error")
 
         }
 
