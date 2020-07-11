@@ -131,7 +131,7 @@
 
         let onSearchSuccess = (response) => {
             $("#searchAllJobs").val("")
-            console.log(response)
+            //console.log(response)
         }
 
         let onSearchErr = (errors) => {
@@ -161,33 +161,36 @@
         let processJobsArray = (response) => {
             let arrData = response.item.pagedItems.map(mapSingleJob);
             $(".cloneContainer").append(arrData)
-            return arrData
+            //console.log(response)
         }
 
         let mapSingleJob = (job) => {
             let mainImage = job;
-            var clone = getTemplate()
+            var clone = getTemplate();
             let images = mainImage.techCompany.images;
-            const map1 = images.map(getNewImage)
-            //console.log(newImage)
-            clone.find("h5.card-title").text(job.techCompany.profile)
-            clone.find(".card-text").text(job.techCompany.name)
+            const map1 = images.map(getNewImage);
+
+            //company attrs
+            clone.find("img.card-img-top").attr("src", companyMainImage);
+            clone.find(".companyName").text(job.techCompany.name);
+
+            //job attrs
             clone.find("div").closest("#singleItemId").attr("id", job.id)
-            clone.find("img.card-img-top").attr("src", companyMainImage)
-            return clone
+            clone.find(".statusId").text(job.statusId);
+            clone.find(".title").text(job.title);
+            clone.find(".id").text(job.id);
+            //clone.find(".skills").text([job.skills]);
+            clone.find(".slug").text(job.slug);
+            clone.find(".summary").text(job.summary);
+
+
+            return clone;
         }
 
         let getNewImage = (oldImages) => {
             companyMainImage = oldImages.imageUrl
             return companyMainImage
         }
-
-
-
-
-
-
-
 
 
         // Remove / Edit Jobs \\
@@ -197,11 +200,11 @@
 
             var selectedJob = $(e.currentTarget).closest(".profile-card-5")
             var thisJobId = selectedJob[0].id
-            console.log(thisJobId)
-            writeStatus(thisJobId, selectedJob)
+            //console.log(thisJobId)
+            processRemove(thisJobId)
         }
 
-        let writeStatus = (jobId) => {
+        let processRemove = (jobId) => {
 
             jobsService
                 .removeJob(jobId)
@@ -215,12 +218,6 @@
             $(e.currentTarget).closest(".card.profile-card-5").remove()
         }
 
-
-
-
-
-
-        // Edit Job \\
         let editJob = (e) => {
             e.preventDefault()
             let job = {};
@@ -230,13 +227,41 @@
             location.replace(`addJobs.html?=${job.id}`)
         };
 
+
         // Show Job Detail Page\\
         let showJobDetails = (e) => {
             e.preventDefault();
-            var selectedJob = $(e.currentTarget).closest(".profile-card-5")
-            var thisJob = selectedJob[0].id
+            var selectedJob = $(e.currentTarget).closest(".profile-card-5");
+            var thisJob = selectedJob[0].id;
+            var jobData = {
+                companyName: $("div").find(".companyName").val()
+            }
+            console.log(jobData);
 
         }
+
+        let getJobData = (thisJobId) => {
+
+            //let jobCardData = $("profile-card-5");
+
+            let jobData =
+            {
+                //statusId: $(".profile-card-5").find(".statusId").val(),
+                companyName: $("div").find(".companyName").val(),
+                id: thisJobId,
+                // pay: jobCardData.find(".card-text.name").val(),
+                // skills: jobCardData.find(".card-text.profile").val(),
+                // slug: jobCardData.find(".card-title.slug").val(),
+                // statusId: $(thisJob).find("#statusId").val(),
+                // summary: jobCardData.find(".card-title.summary").val(),
+                // title: jobCardData.find(".card-title.summary").val()
+
+
+
+            }
+            console.log(jobData)
+        }
+
 
         // SIDEBAR \\
         $("#sidebarCollapse").on("click", function () {
@@ -254,9 +279,16 @@
             </div>
             
             <div class="card-body pt-0">
-                <h5 class="card-title">Florence Garza</h5>
-                <p class="card-text">Some quick example text to build on the card title and make up the bulk of
-                    the card's content.</p>
+                <h5 class="card-title"></h5>
+                    <p class="card-text companyName"></p>
+
+                    <p class="card-text title"></p>
+                    <p class="card-text id"></p>
+                    <p class="card-text pay"></p>
+                    <p class="card-text skills"></p>
+                    <p class="card-text slug"></p>
+                    <p class="card-text statusId"></p>
+                    <p class="card-text summary"></p>
                 <button class="btn btn-primary showJob">View Job Details</button>
             </div>
             <button class="btn btn-sm btn-info p-2 editThis">Edit</button>
