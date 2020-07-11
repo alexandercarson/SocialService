@@ -82,12 +82,11 @@ jobsService.updateJob = (payload) => {
   return axios(config).then(handleSuccess).catch(handleError);
 };
 
-jobsService.removeJob = (id, payload) => {
+jobsService.removeJob = (id) => {
   const config = {
     method: "PUT",
     url: jobsService.endpoint + jobsService.jobsEp + `/${id}`,
     crossdomain: true,
-    data: payload,
     withCredentials: true,
     headers: { "content-type": "application/json" },
   };
